@@ -150,7 +150,7 @@
             notInjectNode = document.querySelector(!injected ? '#bangumi-list.inject-node .total-wrap' : '#bangumi-list .total-wrap'),
             buttonNode = document.createElement('span'),
             proxyNode = document.createElement('span');
-        buttonNode.innerHTML = '搜泰区';
+        buttonNode.innerHTML = '搜海外';
         buttonNode.style = 'cursor: pointer; color: #00A1D6; margin-left: 20px;';
         buttonNode.addEventListener('click', () => searchTH());
         proxyNode.innerHTML = `代理服务器：<input id="proxy-server" type="text" maxlength="100" autocomplete="off" value="${proxy ? proxy : ''}">`;
