@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         bilibili海外区域搜索
-// @homepage     https://github.com/
+// @homepage     https://github.com/gamekingv/bilibili-oversea-search
 // @version      0.1
 // @author       gameking
 // @include      https://search.bilibili.com/*
