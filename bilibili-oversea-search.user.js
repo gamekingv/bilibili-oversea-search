@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         bilibili海外区域搜索
 // @homepage     https://github.com/gamekingv/bilibili-oversea-search
-// @version      0.1
+// @version      0.1.1
 // @author       gameking
 // @include      https://search.bilibili.com/*
 // @grant        GM_xmlhttpRequest
@@ -11,7 +11,6 @@
 
 (function () {
     'use strict';
-    let proxy = GM_getValue('th_search_proxy_server');
     function searchTH(page) {
         if (!page) page = 1;
         switchToTH();
@@ -23,7 +22,7 @@
         list.querySelector('.page-wrap').innerHTML = '';
         GM_xmlhttpRequest({
             method: 'GET',
-            url: `https://${proxy}/intl/gateway/v2/app/search/type?appkey=7d089525d3611b1c&build=1001310&c_locale=zh_SG&channel=master&device=android&fnval=16&fnver=0&fourk=0&highlight=1&keyword=${keyword}&lang=hans&locale=zh_CN&mobi_app=bstar_a&platform=android&pn=${page}&ps=20&qn=0&s_locale=zh_SG&sim_code=46000&statistics=%7B%22appId%22%3A1%2C%22platform%22%3A3%2C%22version%22%3A%222.10.1%22%2C%22abtest%22%3A%22%22%7D&type=7`,
+            url: `https://${GM_getValue('th_search_proxy_server')}/intl/gateway/v2/app/search/type?appkey=7d089525d3611b1c&build=1001310&c_locale=zh_SG&channel=master&device=android&fnval=16&fnver=0&fourk=0&highlight=1&keyword=${keyword}&lang=hans&locale=zh_CN&mobi_app=bstar_a&platform=android&pn=${page}&ps=20&qn=0&s_locale=zh_SG&sim_code=46000&statistics=%7B%22appId%22%3A1%2C%22platform%22%3A3%2C%22version%22%3A%222.10.1%22%2C%22abtest%22%3A%22%22%7D&type=7`,
             responseType: 'json',
             onload: e => {
                 if (!e.response || !e.response.data) {
@@ -107,8 +106,10 @@
         }));
     }
     function switchToNormal() {
-        document.querySelector('#bangumi-list:not(.inject-node)').style.display = '';
-        document.querySelector('#bangumi-list.inject-node').style.display = 'none';
+        const list = document.querySelector('#bangumi-list:not(.inject-node)'),
+            injectList = document.querySelector('#bangumi-list.inject-node');
+        list.style.display = '';
+        if (injectList) injectList.style.display = 'none';
     }
     function switchToTH() {
         const list = document.querySelector('#bangumi-list:not(.inject-node)'),
@@ -149,7 +150,8 @@
         const injectNode = document.querySelector(injected ? '#bangumi-list.inject-node .total-wrap' : '#bangumi-list .total-wrap'),
             notInjectNode = document.querySelector(!injected ? '#bangumi-list.inject-node .total-wrap' : '#bangumi-list .total-wrap'),
             buttonNode = document.createElement('span'),
-            proxyNode = document.createElement('span');
+            proxyNode = document.createElement('span'),
+            proxy = GM_getValue('th_search_proxy_server');
         buttonNode.innerHTML = '搜海外';
         buttonNode.style = 'cursor: pointer; color: #00A1D6; margin-left: 20px;';
         buttonNode.addEventListener('click', () => searchTH());
@@ -160,7 +162,6 @@
         injectNode.querySelector('#proxy-server').addEventListener('change', e => {
             if (notInjectNode) notInjectNode.querySelector('#proxy-server').value = e.target.value;
             GM_setValue('th_search_proxy_server', e.target.value);
-            proxy = e.target.value;
         });
     }
     function injectObserver() {
