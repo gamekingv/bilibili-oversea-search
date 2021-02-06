@@ -15,14 +15,27 @@
         if (!page) page = 1;
         switchToTH();
         const list = document.querySelector('#bangumi-list.inject-node'),
-            keyword = document.querySelector('#search-keyword').value;
+            keyword = document.querySelector('#search-keyword').value,
+            query = {
+                appkey: '7d089525d3611b1c',
+                build: '1001310',
+                c_locale: 'zh_SG',
+                keyword,
+                lang: 'hans',
+                mobi_app: 'bstar_a',
+                platform: 'android',
+                pn: '1',
+                ps: '20',
+                s_locale: 'zh_SG',
+                type: '7'
+            };
         list.querySelector('ul').innerHTML = '';
         list.querySelector('.total-wrap .total-text').innerHTML = '共0条数据';
         list.querySelector('.flow-loader-state').innerHTML = '<div class="flow-loader-state-loading inject-node"><div class="load-state"><span class="loading">正在加载...</span></div></div>';
         list.querySelector('.page-wrap').innerHTML = '';
         GM_xmlhttpRequest({
             method: 'GET',
-            url: `https://${GM_getValue('th_search_proxy_server')}/intl/gateway/v2/app/search/type?appkey=7d089525d3611b1c&build=1001310&c_locale=zh_SG&channel=master&device=android&fnval=16&fnver=0&fourk=0&highlight=1&keyword=${keyword}&lang=hans&locale=zh_CN&mobi_app=bstar_a&platform=android&pn=${page}&ps=20&qn=0&s_locale=zh_SG&sim_code=46000&statistics=%7B%22appId%22%3A1%2C%22platform%22%3A3%2C%22version%22%3A%222.10.1%22%2C%22abtest%22%3A%22%22%7D&type=7`,
+            url: `https://${GM_getValue('th_search_proxy_server')}/intl/gateway/v2/app/search/type?${Object.entries(query).map(([key, value]) => `${key}=${value}`).join('&')}`,
             responseType: 'json',
             onload: e => {
                 if (!e.response || !e.response.data) {
