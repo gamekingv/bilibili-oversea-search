@@ -24,7 +24,7 @@
                 lang: 'hans',
                 mobi_app: 'bstar_a',
                 platform: 'android',
-                pn: '1',
+                pn: page,
                 ps: '20',
                 s_locale: 'zh_SG',
                 type: '7'
