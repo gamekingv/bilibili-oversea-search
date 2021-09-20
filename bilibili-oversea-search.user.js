@@ -1,18 +1,20 @@
 // ==UserScript==
 // @name         bilibili海外区域搜索
 // @homepage     https://github.com/gamekingv/bilibili-oversea-search
-// @version      0.1.3
+// @version      0.1.4
 // @author       gameking
 // @include      https://search.bilibili.com/*
 // @grant        GM_xmlhttpRequest
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @grant        unsafeWindow
 // ==/UserScript==
 
 (function () {
     'use strict';
     function searchTH(page) {
         if (!page) page = 1;
+        window.oversea_search_mode = 'TH';
         switchToTH();
         const list = document.querySelector('#bangumi-list.inject-node'),
             keyword = document.querySelector('#search-keyword').value,
@@ -72,6 +74,75 @@
             }
         });
     }
+    function searchTHM(page) {
+        if (!page) page = 1;
+        window.oversea_search_mode = 'THM';
+        switchToTH();
+        const list = document.querySelector('#bangumi-list.inject-node'),
+            keyword = document.querySelector('#search-keyword').value,
+            query = {
+                search_type: 'media_bangumi',
+                page,
+                keyword,
+                __refresh__: true,
+                highlight: '1',
+                single_column: 0
+            };
+        list.querySelector('ul').innerHTML = '';
+        list.querySelector('.total-wrap .total-text').innerHTML = '共0条数据';
+        list.querySelector('.flow-loader-state').innerHTML = '<div class="flow-loader-state-loading inject-node"><div class="load-state"><span class="loading">正在加载...</span></div></div>';
+        list.querySelector('.page-wrap').innerHTML = '';
+        GM_xmlhttpRequest({
+            method: 'GET',
+            url: `https://${GM_getValue('thm_search_proxy_server')}?${Object.entries(query).map(([key, value]) => `${key}=${value}`).join('&')}`,
+            onload: e => {
+                const response = e.response ? JSON.parse(e.response) : {};
+                if (!e.response || !response.data) {
+                    list.querySelector('.flow-loader-state').innerHTML = '<div class="flow-loader-state-nothing inject-node"><div class="error-wrap error-0"><p class="text">代理服务器无法连接或存在限制</p></div></div>';
+                    return;
+                }
+                const result = response.data,
+                    countNode = list.querySelector('.total-wrap .total-text');
+                if (result.numResults === 0) {
+                    list.querySelector('.flow-loader-state').innerHTML = '<div class="flow-loader-state-nothing inject-node"><div class="error-wrap error-0"><p class="text">没有相关数据</p></div></div>';
+                    return;
+                }
+                else list.querySelector('.flow-loader-state').innerHTML = '';
+                countNode.innerHTML = `共${result.numResults}条数据`;
+                console.log(result);
+                for (let item of result.result) {
+                    const ep = item.eps ? item.eps.map(ep => `<li class="ep-sub"><a href="//www.bilibili.com/bangumi/play/ep${ep.id}" target="_blank"><div title="${ep.index_title} ${ep.long_title}" class="ep-item">${Number(ep.title) ? ep.title : `<div class="name">${ep.title}</div>`}</div></a></li>`) : [];
+                    const score = item.media_score ? `<div class="score-num">${item.media_score.score}<span class="fen">分</span></div><div class="user-count">${item.media_score.user_count}人点评</div>` : '';
+                    const resultNode = document.createElement('li');
+                    const title = item.title.replace(/<\/?em[^>]*>/g, '');
+                    resultNode.className = 'bangumi-item inject-node';
+                    resultNode.innerHTML = `<div class="bangumi-item-wrap">\
+<a href="//www.bilibili.com/bangumi/play/ss${item.season_id}" title="${title}" target="_blank" class="left-img"><div class="lazy-img"><img alt="" src="${item.cover.replace(/https?:/, '')}"></div></a>\
+<div class="right-info">\
+<div class="headline"><span class="bangumi-label">番剧</span><a href="//www.bilibili.com/bangumi/play/ss${item.season_id}" title="${title}" target="_blank" class="title">${item.title}</a></div>\
+<div class="intros">\
+<div class="line clearfix">\
+<div class="left-block"><span class="label">风格：</span><span class="value">${item.styles}</span></div>\
+<div class="right-block"><span class="label">地区：</span><span class="value">${item.areas}</span></div>\
+</div>\
+<div class="line clearfix">\
+<div class="left-block"><span class="label">开播时间：</span><span class="value">${item.fix_pubtime_str}</span></div>\
+<div class="right-block"><span class="label">声优：</span><span title="${item.cv}" class="value">${item.cv}</span></div>\
+</div>\
+<div class="desc">${item.desc}</div>\
+</div>\
+<div id="pgc-navigate-wrap" class="${item.selection_style}"><ul class="ep-box clearfix ${item.selection_style}">${ep.join('')}</ul></div>\
+<div class="score">${score}</div>\
+</div></div>`;
+                    list.querySelector('ul').appendChild(resultNode);
+                }
+                pager(page, result.numResults);
+            },
+            onerror: () => {
+                list.querySelector('.flow-loader-state').innerHTML = '<div class="flow-loader-state-nothing inject-node"><div class="error-wrap error-0"><p class="text">代理服务器无法连接或存在限制</p></div></div>';
+            }
+        });
+    }
     function pager(page, total) {
         if (total <= 20) return;
         const totalPage = Math.ceil(total / 20);
@@ -106,19 +177,23 @@
         document.querySelector('#bangumi-list.inject-node > .page-wrap').appendChild(newNode);
         newNode.outerHTML = `<div class="pager"><ul class="pages">${pagesNodes}</ul></div>`;
         document.querySelectorAll('#bangumi-list.inject-node .page-item:not(.active):not(.next):not(.prev)').forEach(node => node.addEventListener('click', () => {
-            searchTH(parseInt(node.innerHTML.replace(/<[^>]*>/g, '')));
+            if (window.oversea_search_mode === 'TH') searchTH(parseInt(node.innerHTML.replace(/<[^>]*>/g, '')));
+            else if (window.oversea_search_mode === 'THM') searchTHM(parseInt(node.innerHTML.replace(/<[^>]*>/g, '')));
             document.querySelector('.rocket-con').click();
         }));
         document.querySelectorAll('#bangumi-list.inject-node .page-item.prev').forEach(node => node.addEventListener('click', () => {
-            searchTH(page - 1);
+            if (window.oversea_search_mode === 'TH') searchTH(page - 1);
+            else if (window.oversea_search_mode === 'THM') searchTHM(page - 1);
             document.querySelector('.rocket-con').click();
         }));
         document.querySelectorAll('#bangumi-list.inject-node .page-item.next').forEach(node => node.addEventListener('click', () => {
-            searchTH(page + 1);
+            if (window.oversea_search_mode === 'TH') searchTH(page + 1);
+            else if (window.oversea_search_mode === 'THM') searchTHM(page + 1);
             document.querySelector('.rocket-con').click();
         }));
     }
     function switchToNormal() {
+        window.oversea_search_mode = '';
         const list = document.querySelector('#bangumi-list:not(.inject-node)'),
             injectList = document.querySelector('#bangumi-list.inject-node');
         list.style.display = '';
@@ -164,17 +239,31 @@
             notInjectNode = document.querySelector(!injected ? '#bangumi-list.inject-node .total-wrap' : '#bangumi-list .total-wrap'),
             buttonNode = document.createElement('span'),
             proxyNode = document.createElement('span'),
-            proxy = GM_getValue('th_search_proxy_server');
+            proxy = GM_getValue('th_search_proxy_server'),
+            THM_buttonNode = document.createElement('span'),
+            THM_proxyNode = document.createElement('span'),
+            THM_proxy = GM_getValue('thm_search_proxy_server');
         buttonNode.innerHTML = '搜海外';
         buttonNode.style = 'cursor: pointer; color: #00A1D6; margin-left: 20px;';
         buttonNode.addEventListener('click', () => searchTH());
         proxyNode.innerHTML = `代理服务器：<input id="proxy-server" type="text" maxlength="100" autocomplete="off" value="${proxy ? proxy : ''}">`;
         proxyNode.style = 'margin-left: 20px;';
+        THM_buttonNode.innerHTML = '搜港澳台';
+        THM_buttonNode.style = 'cursor: pointer; color: #00A1D6; margin-left: 20px;';
+        THM_buttonNode.addEventListener('click', () => searchTHM());
+        THM_proxyNode.innerHTML = `港澳台代理服务器：<input id="thm-proxy-server" type="text" maxlength="100" autocomplete="off" value="${THM_proxy ? THM_proxy : ''}">`;
+        THM_proxyNode.style = 'margin-left: 20px;';
         injectNode.appendChild(buttonNode);
         injectNode.appendChild(proxyNode);
+        injectNode.appendChild(THM_buttonNode);
+        injectNode.appendChild(THM_proxyNode);
         injectNode.querySelector('#proxy-server').addEventListener('change', e => {
             if (notInjectNode) notInjectNode.querySelector('#proxy-server').value = e.target.value;
             GM_setValue('th_search_proxy_server', e.target.value);
+        });
+        injectNode.querySelector('#thm-proxy-server').addEventListener('change', e => {
+            if (notInjectNode) notInjectNode.querySelector('#thm-proxy-server').value = e.target.value;
+            GM_setValue('thm_search_proxy_server', e.target.value);
         });
     }
     function injectObserver() {
