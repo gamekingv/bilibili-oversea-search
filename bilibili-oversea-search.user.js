@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         bilibili海外区域搜索
 // @homepage     https://github.com/gamekingv/bilibili-oversea-search
-// @version      0.1.5
+// @version      0.1.6
 // @author       gameking
 // @include      https://search.bilibili.com/*
 // @grant        GM_xmlhttpRequest
@@ -79,7 +79,7 @@
         window.oversea_search_mode = 'THM';
         switchToSearch();
         const list = document.querySelector('#bangumi-list.inject-node'),
-            area = list.querySelector('#proxy-area').value || 'cn',
+            area = list.querySelector('#proxy-area').value,
             keyword = document.querySelector('#search-keyword').value,
             query = {
                 search_type: 'media_bangumi',
@@ -111,7 +111,6 @@
                 }
                 else list.querySelector('.flow-loader-state').innerHTML = '';
                 countNode.innerHTML = `共${result.numResults}条数据`;
-                console.log(result);
                 for (let item of result.result) {
                     const ep = item.eps ? item.eps.map(ep => `<li class="ep-sub"><a href="//www.bilibili.com/bangumi/play/ep${ep.id}" target="_blank"><div title="${ep.index_title} ${ep.long_title}" class="ep-item">${Number(ep.title) ? ep.title : `<div class="name">${ep.title}</div>`}</div></a></li>`) : [];
                     const score = item.media_score ? `<div class="score-num">${item.media_score.score}<span class="fen">分</span></div><div class="user-count">${item.media_score.user_count}人点评</div>` : '';
@@ -226,7 +225,6 @@
                 responseType: 'json',
                 data: `season_id=${season_id}&csrf=${document.cookie.match(/bili_jct=([^;]*);/)[1]}`,
                 onload: e => {
-                    console.log(e.response);
                     if (!e.response) infoNode.innerHTML = '操作失败';
                     else if (e.response.code === 0) infoNode.innerHTML = '追番成功';
                     else infoNode.innerHTML = '操作失败';
@@ -248,7 +246,8 @@
             cn_proxyNode = document.createElement('span'),
             cn_proxy = GM_getValue('cn_search_proxy_server'),
             proxy_area = document.createElement('span'),
-            buttonNode = document.createElement('span');
+            buttonNode = document.createElement('span'),
+            areaNode = document.querySelector('#proxy-area');
         th_proxyNode.innerHTML = `海外服务器：<input id="th-proxy-server" style="width: 100px" type="text" maxlength="100" autocomplete="off" value="${th_proxy ? th_proxy : ''}">`;
         th_proxyNode.style = 'margin-left: 20px;';
         hk_proxyNode.innerHTML = `港澳服务器：<input id="hk-proxy-server" style="width: 100px" type="text" maxlength="100" autocomplete="off" value="${hk_proxy ? hk_proxy : ''}">`;
@@ -272,6 +271,7 @@
         injectNode.appendChild(cn_proxyNode);
         injectNode.appendChild(proxy_area);
         injectNode.appendChild(buttonNode);
+        if (areaNode) proxy_area.querySelector('#proxy-area').value = areaNode.value;
         injectNode.querySelector('#th-proxy-server').addEventListener('change', e => {
             if (notInjectNode) notInjectNode.querySelector('#th-proxy-server').value = e.target.value;
             GM_setValue('th_search_proxy_server', e.target.value);
