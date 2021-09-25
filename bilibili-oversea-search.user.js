@@ -90,8 +90,6 @@
                 single_column: 0,
                 area
             };
-        console.log(list.querySelector('#proxy-area').value);
-        console.log(area);
         list.querySelector('ul').innerHTML = '';
         list.querySelector('.total-wrap .total-text').innerHTML = '共0条数据';
         list.querySelector('.flow-loader-state').innerHTML = '<div class="flow-loader-state-loading inject-node"><div class="load-state"><span class="loading">正在加载...</span></div></div>';
@@ -251,12 +249,6 @@
             cn_proxy = GM_getValue('cn_search_proxy_server'),
             proxy_area = document.createElement('span'),
             buttonNode = document.createElement('span');
-            //THM_buttonNode = document.createElement('span'),
-            //THM_proxyNode = document.createElement('span'),
-            //THM_proxy = GM_getValue('thm_search_proxy_server');
-        //buttonNode.innerHTML = '搜海外';
-        //buttonNode.style = 'cursor: pointer; color: #00A1D6; margin-left: 20px;';
-        //buttonNode.addEventListener('click', () => searchTH());
         th_proxyNode.innerHTML = `海外服务器：<input id="th-proxy-server" style="width: 100px" type="text" maxlength="100" autocomplete="off" value="${th_proxy ? th_proxy : ''}">`;
         th_proxyNode.style = 'margin-left: 20px;';
         hk_proxyNode.innerHTML = `港澳服务器：<input id="hk-proxy-server" style="width: 100px" type="text" maxlength="100" autocomplete="off" value="${hk_proxy ? hk_proxy : ''}">`;
@@ -274,19 +266,12 @@
             if (area === 'th') searchTH();
             else searchTHM();
         });
-        //THM_buttonNode.innerHTML = '搜港澳台';
-        //THM_buttonNode.style = 'cursor: pointer; color: #00A1D6; margin-left: 20px;';
-        //THM_buttonNode.addEventListener('click', () => searchTHM());
-        //THM_proxyNode.innerHTML = `港澳台代理服务器：<input id="thm-proxy-server" type="text" maxlength="100" autocomplete="off" value="${THM_proxy ? THM_proxy : ''}">`;
-        //THM_proxyNode.style = 'margin-left: 20px;';
         injectNode.appendChild(th_proxyNode);
         injectNode.appendChild(hk_proxyNode);
         injectNode.appendChild(tw_proxyNode);
         injectNode.appendChild(cn_proxyNode);
         injectNode.appendChild(proxy_area);
         injectNode.appendChild(buttonNode);
-        //injectNode.appendChild(THM_buttonNode);
-        //injectNode.appendChild(THM_proxyNode);
         injectNode.querySelector('#th-proxy-server').addEventListener('change', e => {
             if (notInjectNode) notInjectNode.querySelector('#th-proxy-server').value = e.target.value;
             GM_setValue('th_search_proxy_server', e.target.value);
