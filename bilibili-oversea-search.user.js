@@ -96,7 +96,7 @@
         list.querySelector('.page-wrap').innerHTML = '';
         GM_xmlhttpRequest({
             method: 'GET',
-            url: `https://${GM_getValue(area + '_search_proxy_server')}/x/web-interface/search/type?${Object.entries(query).map(([key, value]) => `${key}=${value}`).join('&')}`,
+            url: `https://${GM_getValue(area + '_search_proxy_server') || 'api.bilibili.com'}/x/web-interface/search/type?${Object.entries(query).map(([key, value]) => `${key}=${value}`).join('&')}`,
             onload: e => {
                 const response = e.response ? JSON.parse(e.response) : {};
                 if (!e.response || !response.data) {
