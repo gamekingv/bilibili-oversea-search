@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         bilibili海外区域搜索
 // @homepage     https://github.com/gamekingv/bilibili-oversea-search
-// @version      0.1.4
+// @version      0.1.5
 // @author       gameking
 // @include      https://search.bilibili.com/*
 // @grant        GM_xmlhttpRequest
@@ -15,7 +15,7 @@
     function searchTH(page) {
         if (!page) page = 1;
         window.oversea_search_mode = 'TH';
-        switchToTH();
+        switchToSearch();
         const list = document.querySelector('#bangumi-list.inject-node'),
             keyword = document.querySelector('#search-keyword').value,
             query = {
@@ -77,8 +77,9 @@
     function searchTHM(page) {
         if (!page) page = 1;
         window.oversea_search_mode = 'THM';
-        switchToTH();
+        switchToSearch();
         const list = document.querySelector('#bangumi-list.inject-node'),
+            area = list.querySelector('#proxy-area').value || 'cn',
             keyword = document.querySelector('#search-keyword').value,
             query = {
                 search_type: 'media_bangumi',
@@ -86,15 +87,18 @@
                 keyword,
                 __refresh__: true,
                 highlight: '1',
-                single_column: 0
+                single_column: 0,
+                area
             };
+        console.log(list.querySelector('#proxy-area').value);
+        console.log(area);
         list.querySelector('ul').innerHTML = '';
         list.querySelector('.total-wrap .total-text').innerHTML = '共0条数据';
         list.querySelector('.flow-loader-state').innerHTML = '<div class="flow-loader-state-loading inject-node"><div class="load-state"><span class="loading">正在加载...</span></div></div>';
         list.querySelector('.page-wrap').innerHTML = '';
         GM_xmlhttpRequest({
             method: 'GET',
-            url: `https://${GM_getValue('thm_search_proxy_server')}?${Object.entries(query).map(([key, value]) => `${key}=${value}`).join('&')}`,
+            url: `https://${GM_getValue(area + '_search_proxy_server')}/x/web-interface/search/type?${Object.entries(query).map(([key, value]) => `${key}=${value}`).join('&')}`,
             onload: e => {
                 const response = e.response ? JSON.parse(e.response) : {};
                 if (!e.response || !response.data) {
@@ -199,7 +203,7 @@
         list.style.display = '';
         if (injectList) injectList.style.display = 'none';
     }
-    function switchToTH() {
+    function switchToSearch() {
         const list = document.querySelector('#bangumi-list:not(.inject-node)'),
             injectList = document.querySelector('#bangumi-list.inject-node');
         list.style.display = 'none';
@@ -237,33 +241,67 @@
     function injectButton(injected) {
         const injectNode = document.querySelector(injected ? '#bangumi-list.inject-node .total-wrap' : '#bangumi-list .total-wrap'),
             notInjectNode = document.querySelector(!injected ? '#bangumi-list.inject-node .total-wrap' : '#bangumi-list .total-wrap'),
-            buttonNode = document.createElement('span'),
-            proxyNode = document.createElement('span'),
-            proxy = GM_getValue('th_search_proxy_server'),
-            THM_buttonNode = document.createElement('span'),
-            THM_proxyNode = document.createElement('span'),
-            THM_proxy = GM_getValue('thm_search_proxy_server');
-        buttonNode.innerHTML = '搜海外';
+            th_proxyNode = document.createElement('span'),
+            th_proxy = GM_getValue('th_search_proxy_server'),
+            hk_proxyNode = document.createElement('span'),
+            hk_proxy = GM_getValue('hk_search_proxy_server'),
+            tw_proxyNode = document.createElement('span'),
+            tw_proxy = GM_getValue('tw_search_proxy_server'),
+            cn_proxyNode = document.createElement('span'),
+            cn_proxy = GM_getValue('cn_search_proxy_server'),
+            proxy_area = document.createElement('span'),
+            buttonNode = document.createElement('span');
+            //THM_buttonNode = document.createElement('span'),
+            //THM_proxyNode = document.createElement('span'),
+            //THM_proxy = GM_getValue('thm_search_proxy_server');
+        //buttonNode.innerHTML = '搜海外';
+        //buttonNode.style = 'cursor: pointer; color: #00A1D6; margin-left: 20px;';
+        //buttonNode.addEventListener('click', () => searchTH());
+        th_proxyNode.innerHTML = `海外服务器：<input id="th-proxy-server" style="width: 100px" type="text" maxlength="100" autocomplete="off" value="${th_proxy ? th_proxy : ''}">`;
+        th_proxyNode.style = 'margin-left: 20px;';
+        hk_proxyNode.innerHTML = `港澳服务器：<input id="hk-proxy-server" style="width: 100px" type="text" maxlength="100" autocomplete="off" value="${hk_proxy ? hk_proxy : ''}">`;
+        hk_proxyNode.style = 'margin-left: 20px;';
+        tw_proxyNode.innerHTML = `台湾服务器：<input id="tw-proxy-server" style="width: 100px" type="text" maxlength="100" autocomplete="off" value="${tw_proxy ? tw_proxy : ''}">`;
+        tw_proxyNode.style = 'margin-left: 20px;';
+        cn_proxyNode.innerHTML = `大陆服务器：<input id="cn-proxy-server" style="width: 100px" type="text" maxlength="100" autocomplete="off" value="${cn_proxy ? cn_proxy : ''}">`;
+        cn_proxyNode.style = 'margin-left: 20px;';
+        proxy_area.innerHTML = '<select id="proxy-area"><option value="cn">大陆</option><option value="hk">港澳</option><option value="tw">台湾</option><option value="th">海外</option></select>';
+        proxy_area.style = 'margin-left: 20px;';
+        buttonNode.innerHTML = '搜索';
         buttonNode.style = 'cursor: pointer; color: #00A1D6; margin-left: 20px;';
-        buttonNode.addEventListener('click', () => searchTH());
-        proxyNode.innerHTML = `代理服务器：<input id="proxy-server" type="text" maxlength="100" autocomplete="off" value="${proxy ? proxy : ''}">`;
-        proxyNode.style = 'margin-left: 20px;';
-        THM_buttonNode.innerHTML = '搜港澳台';
-        THM_buttonNode.style = 'cursor: pointer; color: #00A1D6; margin-left: 20px;';
-        THM_buttonNode.addEventListener('click', () => searchTHM());
-        THM_proxyNode.innerHTML = `港澳台代理服务器：<input id="thm-proxy-server" type="text" maxlength="100" autocomplete="off" value="${THM_proxy ? THM_proxy : ''}">`;
-        THM_proxyNode.style = 'margin-left: 20px;';
+        buttonNode.addEventListener('click', () => {
+            const area = injectNode.querySelector('#proxy-area').value;
+            if (area === 'th') searchTH();
+            else searchTHM();
+        });
+        //THM_buttonNode.innerHTML = '搜港澳台';
+        //THM_buttonNode.style = 'cursor: pointer; color: #00A1D6; margin-left: 20px;';
+        //THM_buttonNode.addEventListener('click', () => searchTHM());
+        //THM_proxyNode.innerHTML = `港澳台代理服务器：<input id="thm-proxy-server" type="text" maxlength="100" autocomplete="off" value="${THM_proxy ? THM_proxy : ''}">`;
+        //THM_proxyNode.style = 'margin-left: 20px;';
+        injectNode.appendChild(th_proxyNode);
+        injectNode.appendChild(hk_proxyNode);
+        injectNode.appendChild(tw_proxyNode);
+        injectNode.appendChild(cn_proxyNode);
+        injectNode.appendChild(proxy_area);
         injectNode.appendChild(buttonNode);
-        injectNode.appendChild(proxyNode);
-        injectNode.appendChild(THM_buttonNode);
-        injectNode.appendChild(THM_proxyNode);
-        injectNode.querySelector('#proxy-server').addEventListener('change', e => {
-            if (notInjectNode) notInjectNode.querySelector('#proxy-server').value = e.target.value;
+        //injectNode.appendChild(THM_buttonNode);
+        //injectNode.appendChild(THM_proxyNode);
+        injectNode.querySelector('#th-proxy-server').addEventListener('change', e => {
+            if (notInjectNode) notInjectNode.querySelector('#th-proxy-server').value = e.target.value;
             GM_setValue('th_search_proxy_server', e.target.value);
         });
-        injectNode.querySelector('#thm-proxy-server').addEventListener('change', e => {
-            if (notInjectNode) notInjectNode.querySelector('#thm-proxy-server').value = e.target.value;
-            GM_setValue('thm_search_proxy_server', e.target.value);
+        injectNode.querySelector('#hk-proxy-server').addEventListener('change', e => {
+            if (notInjectNode) notInjectNode.querySelector('#hk-proxy-server').value = e.target.value;
+            GM_setValue('hk_search_proxy_server', e.target.value);
+        });
+        injectNode.querySelector('#tw-proxy-server').addEventListener('change', e => {
+            if (notInjectNode) notInjectNode.querySelector('#tw-proxy-server').value = e.target.value;
+            GM_setValue('tw_search_proxy_server', e.target.value);
+        });
+        injectNode.querySelector('#cn-proxy-server').addEventListener('change', e => {
+            if (notInjectNode) notInjectNode.querySelector('#cn-proxy-server').value = e.target.value;
+            GM_setValue('cn_search_proxy_server', e.target.value);
         });
     }
     function injectObserver() {
