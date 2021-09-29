@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         bilibili海外区域搜索
 // @homepage     https://github.com/gamekingv/bilibili-oversea-search
-// @version      0.1.6
+// @version      0.1.7
 // @author       gameking
 // @include      https://search.bilibili.com/*
 // @grant        GM_xmlhttpRequest
@@ -29,7 +29,8 @@
                 pn: page,
                 ps: '20',
                 s_locale: 'zh_SG',
-                type: '7'
+                type: '7',
+                area: 'th'
             };
         list.querySelector('ul').innerHTML = '';
         list.querySelector('.total-wrap .total-text').innerHTML = '共0条数据';
