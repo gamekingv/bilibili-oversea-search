@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         bilibili海外区域搜索
 // @homepage     https://github.com/gamekingv/bilibili-oversea-search
-// @version      0.1.8
+// @version      0.1.9
 // @author       gameking
 // @include      https://search.bilibili.com/*
 // @grant        GM_xmlhttpRequest
@@ -272,7 +272,16 @@
         injectNode.appendChild(cn_proxyNode);
         injectNode.appendChild(proxy_area);
         injectNode.appendChild(buttonNode);
-        if (areaNode) proxy_area.querySelector('#proxy-area').value = areaNode.value;
+        if (areaNode) {
+            const newAreaNode = proxy_area.querySelector('#proxy-area');
+            newAreaNode.value = areaNode.value;
+            newAreaNode.addEventListener('input', e => {
+                areaNode.value = newAreaNode.value;
+            });
+            areaNode.addEventListener('input', e => {
+                newAreaNode.value = areaNode.value;
+            });
+        }
         injectNode.querySelector('#th-proxy-server').addEventListener('change', e => {
             if (notInjectNode) notInjectNode.querySelector('#th-proxy-server').value = e.target.value;
             GM_setValue('th_search_proxy_server', e.target.value);
