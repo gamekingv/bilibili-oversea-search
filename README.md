@@ -32,7 +32,7 @@ exports.handler = (req, resp, context) => {
     const options = {
         hostname: 'api.bilibili.com',
         port: 443,
-        path: '/x/web-interface/search/type?' + queries.join('&'),
+        path: req.path + '?' + queries.join('&'),
         method: 'GET',
         headers: {
             'Referer': 'https://search.bilibili.com/bangumi',
