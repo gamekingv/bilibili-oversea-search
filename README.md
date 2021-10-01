@@ -46,7 +46,6 @@ exports.handler = (req, resp, context) => {
             responseText += d.toString();
         });
         res.on('end', function() {
-            console.log(responseText);
             resp.send(responseText);
         });
     });
