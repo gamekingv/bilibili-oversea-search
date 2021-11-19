@@ -47,12 +47,12 @@
                 }
                 const result = e.response.data,
                     countNode = list.querySelector('.total-wrap .total-text');
-                if (result.total === 0) {
+                if (!result.items) {
                     list.querySelector('.flow-loader-state').innerHTML = '<div class="flow-loader-state-nothing inject-node"><div class="error-wrap error-0"><p class="text">没有相关数据</p></div></div>';
                     return;
                 }
                 else list.querySelector('.flow-loader-state').innerHTML = '';
-                countNode.innerHTML = `共${result.total}条数据`;
+                countNode.innerHTML = `共${result.items.length}条数据`;
                 for (let item of result.items) {
                     const resultNode = document.createElement('li'),
                         title = item.title.replace(/<\/?em[^>]*>/g, '');
