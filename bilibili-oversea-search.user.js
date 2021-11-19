@@ -52,7 +52,7 @@
                     return;
                 }
                 else list.querySelector('.flow-loader-state').innerHTML = '';
-                countNode.innerHTML = `共${result.items.length-1}条数据`;
+                countNode.innerHTML = `共${result.items.length}条数据`;
                 for (let item of result.items) {
                     const resultNode = document.createElement('li'),
                         title = item.title.replace(/<\/?em[^>]*>/g, '');
