@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         bilibili海外区域搜索
 // @homepage     https://github.com/gamekingv/bilibili-oversea-search
-// @version      0.1.10
+// @version      0.1.11
 // @author       gameking
 // @include      https://search.bilibili.com/*
 // @grant        GM_xmlhttpRequest
@@ -119,9 +119,9 @@
                     const title = item.title.replace(/<\/?em[^>]*>/g, '');
                     resultNode.className = 'bangumi-item inject-node';
                     resultNode.innerHTML = `<div class="bangumi-item-wrap">\
-<a href="//www.bilibili.com/bangumi/play/ss${item.season_id}" title="${title}" target="_blank" class="left-img"><div class="lazy-img"><img alt="" src="${item.cover.replace(/https?:/, '')}"></div></a>\
+<a href="//bangumi.bilibili.com/anime/${item.season_id}" title="${title}" target="_blank" class="left-img"><div class="lazy-img"><img alt="" src="${item.cover.replace(/https?:/, '')}"></div></a>\
 <div class="right-info">\
-<div class="headline"><span class="bangumi-label">番剧</span><a href="//www.bilibili.com/bangumi/play/ss${item.season_id}" title="${title}" target="_blank" class="title">${item.title}</a></div>\
+<div class="headline"><span class="bangumi-label">番剧</span><a href="//bangumi.bilibili.com/anime/${item.season_id}" title="${title}" target="_blank" class="title">${item.title}</a></div>\
 <div class="intros">\
 <div class="line clearfix">\
 <div class="left-block"><span class="label">风格：</span><span class="value">${item.styles}</span></div>\
