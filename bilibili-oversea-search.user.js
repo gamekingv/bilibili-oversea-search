@@ -128,7 +128,7 @@
 <div class="right-block"><span class="label">地区：</span><span class="value">${item.areas}</span></div>\
 </div>\
 <div class="line clearfix">\
-<div class="left-block"><span class="label">开播时间：</span><span class="value">${item.fix_pubtime_str}</span></div>\
+<div class="left-block"><span class="label">开播时间：</span><span class="value">${new Date(item.pubtime*1000).toLocaleString()}</span></div>\
 <div class="right-block"><span class="label">声优：</span><span title="${item.cv}" class="value">${item.cv}</span></div>\
 </div>\
 <div class="desc">${item.desc}</div>\
