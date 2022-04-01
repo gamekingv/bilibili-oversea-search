@@ -1,5 +1,5 @@
 # bilibili海外区域搜索
-首先安装Tampermonkey等脚本管理工具，然后点击[这里](https://github.com/gamekingv/bilibili-oversea-search/raw/main/bilibili-oversea-search.user.js)安装脚本。
+首先安装Tampermonkey等脚本管理工具，然后点击[这里](https://github.com/gamekingv/bilibili-oversea-search/raw/main/bilibili-oversea-search.user.js)安装脚本（旧版搜索页面）。
 
 如使用B站新版搜索页面的请点击[这里](https://github.com/gamekingv/bilibili-oversea-search/raw/main/bilibili-oversea-search_new.user.js)安装。
 
