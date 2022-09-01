@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         bilibili海外区域搜索_new
 // @homepage     https://github.com/gamekingv/bilibili-oversea-search
-// @version      0.1.0
+// @version      0.1.1
 // @author       gameking
 // @include      https://search.bilibili.com/*
 // @grant        GM_xmlhttpRequest
@@ -125,6 +125,7 @@
         GM_xmlhttpRequest({
             method: 'GET',
             url: `https://${GM_getValue(area + '_search_proxy_server') || 'api.bilibili.com'}/x/web-interface/search/type?${Object.entries(query).map(([key, value]) => `${key}=${value}`).join('&')}`,
+            cookie: document.cookie,
             onload: e => {
                 const response = e.response ? JSON.parse(e.response) : {};
                 if (!e.response || !response.data) {
